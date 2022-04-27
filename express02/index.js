@@ -4,10 +4,10 @@ const { crear } = require("../data-handler");
 const app = express();
 const port = 5000;
 
-app.use( express.json() )
+app.use( bodyParser.json() )
 /*reformatea el request y
  lo convierte en un body*/
-app.use(express.urlencoded());
+app.use(bodyParser.urlencoded({extended:true}));
 
 
 app.get("/", (req, res) => {
@@ -46,7 +46,7 @@ app.get("/mascotas", (req, res) => {
 });
 
 app.post("/mascotas", async (req, res) => {
- console.log(req.body);
+ console.log('req.body = ',req.body);
 
     /* const nuevaMascota = await crear({
     directorioEntidad: "mascotas",
