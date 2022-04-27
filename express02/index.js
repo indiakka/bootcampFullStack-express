@@ -45,14 +45,15 @@ app.get("/mascotas", (req, res) => {
 });
 
 app.post("/mascotas", async (req, res) => {
-  if (req.body) {
+  if (req.body && Object.keys(req.body).length > 0) {
     const nuevaMascota = await crear({
       directorioEntidad: "mascotas",
       nombreArchivo: "mascota3",
       datosGuardar: req.body,
     });
-   return res.status(200).json(nuevaMascota);
+    return res.status(200).json(nuevaMascota);
   }
+  return res.status(400).json({ mensaje: "Falta el body" });
 });
 
 app.listen(port, () => {
