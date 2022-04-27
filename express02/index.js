@@ -1,7 +1,14 @@
-const express = require("express");
+const express = require( "express" );
+const bodyParser = require('body-parser')
 const { crear } = require("../data-handler");
 const app = express();
 const port = 5000;
+
+app.use( express.json() )
+/*reformatea el request y
+ lo convierte en un body*/
+app.use(express.urlencoded());
+
 
 app.get("/", (req, res) => {
   res.send("La API está funcionando sin problema");
@@ -39,12 +46,14 @@ app.get("/mascotas", (req, res) => {
 });
 
 app.post("/mascotas", async (req, res) => {
-  const nuevaMascota = await crear({
+ console.log(req.body);
+
+    /* const nuevaMascota = await crear({
     directorioEntidad: "mascotas",
-    nombreArchivo: "mascota1",
-    datosGuardar: { tipo: "Pájaro", nombre: "Robert", dueno: "Camila" },
-  });
-  res.status(200).json(nuevaMascota);
+    nombreArchivo: "mascota2",
+    datosGuardar: { tipo: "Perro", nombre: "Paco", dueno: "Mila" },
+  });*/
+  res.status(200).json({mensaje: 'hola'});
 });
 
 app.listen(port, () => {
