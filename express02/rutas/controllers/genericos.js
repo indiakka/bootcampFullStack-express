@@ -57,8 +57,32 @@ const crearEntidad = function closureCrearEntidad(entidad) {
     return res.status(400).json({ mensaje: "Falta el body" });
   };
 };
+
+const editarEntidad = function closureEditarEntidad(entidad) {
+  return async function closureEditarEntidad(req, res) {
+    const { _id = null } = req.params;
+    if (!_id) {
+      return res.status(400).json({ mensaje: "Falta el id" });
+    }
+    if (!entidad) {
+      res.status(404).status({ mensaje: "No encontrado" });
+    }
+    if (req.body && Object.keys(req.body).length > 0) {
+      const datosActuales = { ...req.body, _id };
+      const mascotaActualizada = await actualizar({
+        directorioEntidad: entidad,
+        nombreArchivo: _id,
+        datosActuales,
+      });
+      return res.status(200).json(mascotaActualizada);
+    }
+    return res.status(400).json({ mensaje: "Falta el body" });
+  };
+};
+
 module.exports = {
   listar: listarEntidades,
   obtenerUno: obtenerUnaEntidad,
   crear: crearEntidad,
+  actualizar: editarEntidad,
 };
