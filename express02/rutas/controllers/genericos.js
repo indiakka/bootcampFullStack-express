@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require("uuid");
+
 const {
   crear,
   listar,
@@ -37,7 +39,26 @@ const obtenerUnaEntidad = function closureObtenerUno(entidad) {
   };
 };
 
+const crearEntidad = function closureCrearEntidad(entidad) {
+  return async function closureCrearEntidad(req, res) {
+    if (!entidad) {
+      res.status(404).status({ mensaje: "No encontrado" });
+    }
+    if (req.body && Object.keys(req.body).length > 0) {
+      const _id = uuidv4();
+      const datosMascotaNueva = { ...req.body, _id };
+      const nuevaMascota = await crear({
+        directorioEntidad: entidad,
+        nombreArchivo: _id,
+        datosGuardar: datosMascotaNueva,
+      });
+      return res.status(200).json(nuevaMascota);
+    }
+    return res.status(400).json({ mensaje: "Falta el body" });
+  };
+};
 module.exports = {
-    listar: listarEntidades,
-    obtenerUno : obtenerUnaEntidad
+  listar: listarEntidades,
+  obtenerUno: obtenerUnaEntidad,
+  crear: crearEntidad,
 };
