@@ -1,34 +1,29 @@
-const router = require('express').Router()
-const { v4: uuidv4 } = require( "uuid" );
+const router = require("express").Router();
+const { v4: uuidv4 } = require("uuid");
 const {
   crear,
   listar,
   actualizar,
   eliminar,
   obtenerUno,
-} = require("../data-handler");
-const rutasRestringidas= '/:entidad(mascotas| veterinarias| duenos| consultas)'
+} = require("../../data-handler");
+const entidad = "mascotas";
 
-router.get("/", (req, res) => {
-  res.send("La API está funcionando sin problema");
-});
-
-router.get(rutasRestringidas, async (req, res) => {
-  const { entidad = null } = req.params;
+router.get("/", async (req, res) => {
   if (!entidad) {
-    res.status(404).status({ mensaje: "No encontrado" });
+    res.status(404).status({ mensaje: "no encontrado" });
   }
   const mascotas = await listar({ directorioEntidad: entidad });
   res.status(200).json(mascotas);
 });
 
-router.get(`${rutasRestringidas}/:_id`, async (req, res) => {
-  const { _id = null, entidad = null } = req.params;
+router.get("/:_id", async (req, res) => {
+  const { _id = null } = req.params;
   if (!_id) {
     return res.status(400).json({ mensaje: "Falta el id" });
   }
   if (!entidad) {
-    res.status(404).status({ mensaje: "No encontrado" });
+    res.status(404).status({ mensaje: "no encontrado" });
   }
   const mascota = await obtenerUno({
     directorioEntidad: entidad,
@@ -37,13 +32,12 @@ router.get(`${rutasRestringidas}/:_id`, async (req, res) => {
   if (mascota) {
     res.status(200).json(mascota);
   }
-  res.status(404).json({ mensaje: "No encontrado" });
+  res.status(404).json({ mensaje: "no encontrado" });
 });
 
-router.post(rutasRestringidas, async (req, res) => {
-  const { entidad = null } = req.params;
+router.post("/", async (req, res) => {
   if (!entidad) {
-    res.status(404).status({ mensaje: "No encontrado" });
+    res.status(404).status({ mensaje: "no encontrado" });
   }
   if (req.body && Object.keys(req.body).length > 0) {
     const _id = uuidv4();
@@ -58,8 +52,8 @@ router.post(rutasRestringidas, async (req, res) => {
   return res.status(400).json({ mensaje: "Falta el body" });
 });
 
-router.put(`${rutasRestringidas}/:_id`, async (req, res) => {
-  const { _id = null, entidad = null } = req.params;
+router.put("/:_id", async (req, res) => {
+  const { _id = null } = req.params;
   if (!_id) {
     return res.status(400).json({ mensaje: "Falta el id" });
   }
@@ -78,17 +72,16 @@ router.put(`${rutasRestringidas}/:_id`, async (req, res) => {
   return res.status(400).json({ mensaje: "Falta el body" });
 });
 
-router.delete(`${rutasRestringidas}/:_id`, async (req, res) => {
-  const { _id = null, entidad = null } = req.params;
+router.delete("/:_id", async (req, res) => {
+  const { _id = null } = req.params;
   if (!_id) {
     return res.status(400).json({ mensaje: "Falta el id" });
   }
   if (!entidad) {
-    res.status(404).status({ mensaje: "No encontrado" });
+    res.status(404).status({ mensaje: "no encontrado" });
   }
-
   await eliminar({ directorioEntidad: entidad, nombreArchivo: _id });
   return res.status(204).send();
 });
 
-module.exports = router
+module.exports = router;
