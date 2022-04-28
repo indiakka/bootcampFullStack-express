@@ -80,9 +80,24 @@ const editarEntidad = function closureEditarEntidad(entidad) {
   };
 };
 
+const eliminarEntidad = function closureEliminarEntidad(entidad) {
+  return async function closureEliminarEntidad(req, res) {
+    const { _id = null } = req.params;
+    if (!_id) {
+      return res.status(400).json({ mensaje: "Falta el id" });
+    }
+    if (!entidad) {
+      res.status(404).status({ mensaje: "No encontrado" });
+    }
+    await eliminar({ directorioEntidad: entidad, nombreArchivo: _id });
+    return res.status(204).send();
+  };
+};
+
 module.exports = {
   listar: listarEntidades,
   obtenerUno: obtenerUnaEntidad,
   crear: crearEntidad,
   actualizar: editarEntidad,
+  eliminar: eliminarEntidad,
 };
