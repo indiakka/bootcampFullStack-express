@@ -2,12 +2,11 @@ const router = require("express").Router();
 const { v4: uuidv4 } = require("uuid");
 const {
   crear,
+  listar,
   actualizar,
   eliminar,
   obtenerUno,
-} = require( "../../../data-handler" );
-const { listar } = require("../genericos");
-
+} = require("../../../data-handler");
 const entidad = "duenos";
 
 router.get("/", async (req, res) => listar(entidad, req, res))
