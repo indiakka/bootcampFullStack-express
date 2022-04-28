@@ -19,32 +19,43 @@ app.get("/", (req, res) => {
   res.send("La API está funcionando sin problema");
 });
 
-app.get("/mascotas", async (req, res) => {
-  const mascotas = await listar({ directorioEntidad: "mascotas" });
+app.get("/:entidad", async (req, res) => {
+  const { entidad = null } = req.params;
+  if (!entidad) {
+    res.status(404).status({ mensaje: "No encontrado" });
+  }
+  const mascotas = await listar({ directorioEntidad: entidad });
   res.status(200).json(mascotas);
 });
 
-app.get("/mascotas/:_id", async (req, res) => {
-  const { _id = null } = req.params;
+app.get("/:entidad/:_id", async (req, res) => {
+  const { _id = null, entidad = null } = req.params;
   if (!_id) {
     return res.status(400).json({ mensaje: "Falta el id" });
   }
+  if (!entidad) {
+    res.status(404).status({ mensaje: "No encontrado" });
+  }
   const mascota = await obtenerUno({
-    directorioEntidad: "mascotas",
+    directorioEntidad: entidad,
     nombreArchivo: _id,
   });
   if (mascota) {
     res.status(200).json(mascota);
   }
-  res.status(404).json({ mensaje: "no encontrado" });
+  res.status(404).json({ mensaje: "No encontrado" });
 });
 
-app.post("/mascotas", async (req, res) => {
+app.post("/:entidad", async (req, res) => {
+  const { entidad = null } = req.params;
+  if (!entidad) {
+    res.status(404).status({ mensaje: "No encontrado" });
+  }
   if (req.body && Object.keys(req.body).length > 0) {
     const _id = uuidv4();
     const datosMascotaNueva = { ...req.body, _id };
     const nuevaMascota = await crear({
-      directorioEntidad: "mascotas",
+      directorioEntidad: entidad,
       nombreArchivo: _id,
       datosGuardar: datosMascotaNueva,
     });
@@ -53,15 +64,18 @@ app.post("/mascotas", async (req, res) => {
   return res.status(400).json({ mensaje: "Falta el body" });
 });
 
-app.put("/mascotas/:_id", async (req, res) => {
-  const { _id = null } = req.params;
+app.put("/:entidad/:_id", async (req, res) => {
+  const { _id = null, entidad = null } = req.params;
   if (!_id) {
-    return res.status(400).json({ mensaje: "Falta el body" });
+    return res.status(400).json({ mensaje: "Falta el id" });
+  }
+  if (!entidad) {
+    res.status(404).status({ mensaje: "no encontrado" });
   }
   if (req.body && Object.keys(req.body).length > 0) {
     const datosActuales = { ...req.body, _id };
     const mascotaActualizada = await actualizar({
-      directorioEntidad: "mascotas",
+      directorioEntidad: entidad,
       nombreArchivo: _id,
       datosActuales,
     });
@@ -70,12 +84,16 @@ app.put("/mascotas/:_id", async (req, res) => {
   return res.status(400).json({ mensaje: "Falta el body" });
 });
 
-app.delete("/mascotas/:_id", async (req, res) => {
-  const { _id = null } = req.params;
+app.delete("/:entidad/:_id", async (req, res) => {
+  const { _id = null, entidad = null } = req.params;
   if (!_id) {
     return res.status(400).json({ mensaje: "Falta el id" });
   }
-  await eliminar({ directorioEntidad: "mascotas", nombreArchivo: _id });
+  if (!entidad) {
+    res.status(404).status({ mensaje: "No encontrado" });
+  }
+
+  await eliminar({ directorioEntidad: entidad, nombreArchivo: _id });
   return res.status(204).send();
 });
 
