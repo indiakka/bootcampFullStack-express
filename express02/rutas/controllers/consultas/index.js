@@ -6,8 +6,8 @@ const {
   actualizar,
   eliminar,
   obtenerUno,
-} = require("../../data-handler");
-const entidad = "veterinarias";
+} = require("../../../data-handler");
+const entidad = "consultas";
 
 router.get("/", async (req, res) => {
   if (!entidad) {
