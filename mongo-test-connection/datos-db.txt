@@ -1,0 +1,3 @@
+ user: indiakka
+ password: Pesadillaantesdenavidad2912
+ mongodb+srv://indiakka:<password>@cluster0.ipshy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
