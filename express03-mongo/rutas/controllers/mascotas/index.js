@@ -4,7 +4,7 @@ const {
   //obtenerUno,
   // crear,
   //actualizar,
-  eliminar,
+  //eliminar,
 } = require("../genericos");
 const entidad = "mascotas";
 const Mascota = require("./schema");
@@ -57,7 +57,7 @@ router.put("/:_id", async (req, res) => {
     const mascotaActualizada = await Mascota.findOneAndUpdate(
       { _id },
       { $set: datosNuevos },
-      { new: true, runValidators:true } // entrega los datos nuevos y verifica validaciones
+      { new: true, runValidators: true } // entrega los datos nuevos y verifica validaciones
     );
     return res.status(200).json(mascotaActualizada);
   } catch (error) {
@@ -65,7 +65,18 @@ router.put("/:_id", async (req, res) => {
   }
 });
 
-const eliminarHandler = eliminar(entidad);
-router.delete("/:_id", eliminarHandler);
+//const eliminarHandler = eliminar(entidad);
+router.delete("/:_id", async (req, res) => {
+  try {
+    const { _id = null } = req.params;
+    if (!_id) {
+      return res.status(400).json({ mensaje: "Falta id" });
+    }
+    const mascotaBorrada = await Mascota.remove({ _id });
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(500).json({ mensaje: error.message });
+  }
+});
 
 module.exports = router;
