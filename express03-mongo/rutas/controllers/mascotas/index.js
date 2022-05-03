@@ -3,7 +3,7 @@ const {
   // listar,
   //obtenerUno,
   // crear,
-  actualizar,
+  //actualizar,
   eliminar,
 } = require("../genericos");
 const entidad = "mascotas";
@@ -27,7 +27,7 @@ router.get("/:_id", async (req, res) => {
     if (mascota) {
       return res.status(200).json(mascota);
     }
-    return res.status(404).json({ mensaje: 'Mascota no encontrada' });
+    return res.status(404).json({ mensaje: "Mascota no encontrada" });
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
   }
@@ -44,8 +44,26 @@ router.post("/", async (req, res) => {
   }
 });
 
-const editarHandler = actualizar(entidad);
-router.put("/:_id", editarHandler);
+//const editarHandler = actualizar(entidad);
+router.put("/:_id", async (req, res) => {
+  try {
+    const { _id = null } = req.params;
+    const { body = {} } = req;
+    const { _id: id, ...datosNuevos } = req.body;
+    // separamos el id de los demás datos
+    if (!_id) {
+      return res.status(400).json({ mensaje: "Falta id" });
+    }
+    const mascotaActualizada = await Mascota.findOneAndUpdate(
+      { _id },
+      { $set: datosNuevos },
+      { new: true, runValidators:true } // entrega los datos nuevos y verifica validaciones
+    );
+    return res.status(200).json(mascotaActualizada);
+  } catch (error) {
+    return res.status(500).json({ mensaje: error.message });
+  }
+});
 
 const eliminarHandler = eliminar(entidad);
 router.delete("/:_id", eliminarHandler);
