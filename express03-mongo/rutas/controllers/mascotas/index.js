@@ -1,19 +1,33 @@
 const router = require("express").Router();
 const {
-  listar,
-  obtenerUno,
-  crear,
+ // listar,
+  //obtenerUno,
+  // crear,
   actualizar,
   eliminar,
 } = require("../genericos");
 const entidad = "mascotas";
 const Mascota = require("./schema");
 
-const listarHandler = listar(entidad);
-router.get("/", listarHandler);
+//const listarHandler = listar(entidad);
+router.get("/", async (req, res) => {
+  try {
+    const mascotas = await Mascota.find();
+    return res.status(200).json(mascotas);
+  } catch (error) {
+    return res.status(500).json({ mensaje: error.message });
+  }
+});
 
-const obtenerUnoHandler = obtenerUno(entidad);
-router.get("/:_id", obtenerUnoHandler);
+//const obtenerUnoHandler = obtenerUno(entidad);
+router.get("/:_id", async (req, res) => {
+  try {
+    const mascotas = await Mascota.find();
+    return res.status(200).json(mascotas);
+  } catch (error) {
+    return res.status(500).json({ mensaje: error.message });
+  }
+} );
 
 //const crearHandler = crear(entidad)
 router.post("/", async (req, res) => {
@@ -22,7 +36,7 @@ router.post("/", async (req, res) => {
     await mascota.save();
     return res.status(200).json(mascota);
   } catch (error) {
-    return res.status(500).json({mensaje: error.message});
+    return res.status(500).json({ mensaje: error.message });
   }
 });
 
