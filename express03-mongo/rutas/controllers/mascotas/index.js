@@ -1,25 +1,35 @@
 const router = require("express").Router();
-const { listar, obtenerUno, crear, actualizar, eliminar} = require( "../genericos" );
-const entidad = 'mascotas'
-const Mascota = require('./schema')
+const {
+  listar,
+  obtenerUno,
+  crear,
+  actualizar,
+  eliminar,
+} = require("../genericos");
+const entidad = "mascotas";
+const Mascota = require("./schema");
 
-const listarHandler = listar(entidad)
-router.get("/", listarHandler)
+const listarHandler = listar(entidad);
+router.get("/", listarHandler);
 
-const obtenerUnoHandler = obtenerUno(entidad)
+const obtenerUnoHandler = obtenerUno(entidad);
 router.get("/:_id", obtenerUnoHandler);
 
 //const crearHandler = crear(entidad)
-router.post( "/", async ( req, res ) =>
-{
-    
+router.post("/", async (req, res) => {
+  try {
+    const mascota = new Mascota(req.body);
+    await mascota.save();
+    return res.status(200).json(mascota);
+  } catch (error) {
+    return res.status(500).json({mensaje: error.message});
+  }
 });
 
-const editarHandler = actualizar(entidad)
+const editarHandler = actualizar(entidad);
 router.put("/:_id", editarHandler);
 
 const eliminarHandler = eliminar(entidad);
 router.delete("/:_id", eliminarHandler);
-
 
 module.exports = router;
