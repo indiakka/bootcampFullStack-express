@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { listar, obtenerUno, crear, actualizar, eliminar} = require( "../genericos" );
 const entidad = 'mascotas'
+const Mascota = require('./schema')
 
 const listarHandler = listar(entidad)
 router.get("/", listarHandler)
@@ -8,8 +9,11 @@ router.get("/", listarHandler)
 const obtenerUnoHandler = obtenerUno(entidad)
 router.get("/:_id", obtenerUnoHandler);
 
-const crearHandler = crear(entidad)
-router.post("/", crearHandler);
+//const crearHandler = crear(entidad)
+router.post( "/", async ( req, res ) =>
+{
+    
+});
 
 const editarHandler = actualizar(entidad)
 router.put("/:_id", editarHandler);
