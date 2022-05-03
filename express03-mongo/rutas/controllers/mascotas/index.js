@@ -73,7 +73,10 @@ router.delete("/:_id", async (req, res) => {
       return res.status(400).json({ mensaje: "Falta id" });
     }
     const mascotaBorrada = await Mascota.remove({ _id });
-    return res.status(204).send();
+    if (mascotaBorrada.deletedCount === 1) {
+      return res.status(204).send();
+    }
+    return res.status(500).json({ mensaje: "No se pudo eliminar" });
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
   }
