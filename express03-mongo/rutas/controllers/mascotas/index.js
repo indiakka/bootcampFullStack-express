@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const {
- // listar,
+  // listar,
   //obtenerUno,
   // crear,
   actualizar,
@@ -22,12 +22,16 @@ router.get("/", async (req, res) => {
 //const obtenerUnoHandler = obtenerUno(entidad);
 router.get("/:_id", async (req, res) => {
   try {
-    const mascotas = await Mascota.find();
-    return res.status(200).json(mascotas);
+    const { _id } = req.params;
+    const mascota = await Mascota.findById(_id);
+    if (mascota) {
+      return res.status(200).json(mascota);
+    }
+    return res.status(404).json({ mensaje: 'Mascota no encontrada' });
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
   }
-} );
+});
 
 //const crearHandler = crear(entidad)
 router.post("/", async (req, res) => {
