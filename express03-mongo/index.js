@@ -1,5 +1,7 @@
 require('dotenv').config()
 
+const conexion = require( './db' )
+conexion()
 const express = require("express");
 const rutas = require('./rutas')
 const app = express();
@@ -15,3 +17,4 @@ rutas (app)
 app.listen(port, () => {
   console.log(`API veterinaria está escuchando en http://localhost:${port}`);
 }); 
+
