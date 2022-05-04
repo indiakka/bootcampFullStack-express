@@ -1,18 +1,13 @@
 const router = require("express").Router();
-const {
-  // listar,
-  //obtenerUno,
-  // crear,
-  //actualizar,
-  //eliminar,
-} = require("../genericos");
+const { filtrarEntidades } = require("../genericos");
 const entidad = "consultas";
 const Consulta = require("./schema");
 
 //const listarHandler = listar(entidad);
 router.get("/", async (req, res) => {
   try {
-    const consultas = await Consulta.find()
+    const filtro = filtrarEntidades(Consulta, req.query);
+    const consultas = await Consulta.find(filtro)
       .populate("mascota")
       .populate("veterinaria");
     return res.status(200).json(consultas);
