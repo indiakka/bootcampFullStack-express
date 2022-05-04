@@ -12,7 +12,7 @@ const Mascota = require("./schema");
 //const listarHandler = listar(entidad);
 router.get("/", async (req, res) => {
   try {
-    const mascotas = await Mascota.find();
+    const mascotas = await Mascota.find().populate('dueno');
     return res.status(200).json(mascotas);
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });

@@ -20,7 +20,7 @@ const consultaSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true } // muestra hora de creación y hora de modificación
 );
 
 module.exports = mongoose.model("consultas", consultaSchema);

@@ -9,8 +9,8 @@ const mascotaSchema = new Schema(
       required: true,
     },
     dueno: {
-      type: String,
-      required: true,
+      type: "ObjectId",
+      ref: "duenos",
     },
   },
   { timestamps: true }
