@@ -11,8 +11,14 @@ const Mascota = require("./schema");
 
 //const listarHandler = listar(entidad);
 router.get("/", async (req, res) => {
-  try {
-    const mascotas = await Mascota.find().populate('dueno');
+  try
+  {
+    let { query } = req
+    for (let llave of Object.keys(query)) //llave es donde se guardan todas las propiedades
+    {
+     query[llave] = {$regex : query[llave]}
+    }
+    const mascotas = await Mascota.find(query).populate('dueno');
     return res.status(200).json(mascotas);
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
