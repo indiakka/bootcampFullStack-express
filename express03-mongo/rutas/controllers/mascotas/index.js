@@ -13,8 +13,12 @@ const Mascota = require("./schema");
 router.get("/", async (req, res) => {
   try {
     let { query } = req;
-    for (let llave of Object.keys(query)) { //llave es donde se guardan todas las propiedades
-      if (Mascota.schema.paths[llave].instance === "ObjectID") {
+    for (let llave of Object.keys(query)) {
+      //llave es donde se guardan todas las propiedades
+      if (
+        Mascota.schema.paths[llave].instance === "ObjectID" ||
+        Mascota.schema.paths[llave].instance === "Date"
+      ) {
         continue;
       }
       query[llave] = { $regex: query[llave] };
