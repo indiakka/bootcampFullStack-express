@@ -7,13 +7,13 @@ const {
   //eliminar,
 } = require("../genericos");
 const entidad = "duenos";
-const Dueno = require("./schema");
+const Veterinaria = require("./schema");
 
 //const listarHandler = listar(entidad);
 router.get("/", async (req, res) => {
   try {
-    const duenos = await Dueno.find();
-    return res.status(200).json(duenos);
+    const veterinarias = await Veterinaria.find();
+    return res.status(200).json(veterinarias);
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
   }
@@ -23,11 +23,11 @@ router.get("/", async (req, res) => {
 router.get("/:_id", async (req, res) => {
   try {
     const { _id } = req.params;
-    const dueno = await Dueno.findById(_id);
-    if (dueno) {
-      return res.status(200).json(dueno);
+    const veterinaria = await Veterinaria.findById(_id);
+    if (veterinaria) {
+      return res.status(200).json(veterinaria);
     }
-    return res.status(404).json({ mensaje: "Dueñ@ no encontrada" });
+    return res.status(404).json({ mensaje: "Veterinari@ no encontrada" });
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
   }
@@ -36,9 +36,9 @@ router.get("/:_id", async (req, res) => {
 //const crearHandler = crear(entidad)
 router.post("/", async (req, res) => {
   try {
-    const dueno = new Dueno(req.body);
-    await dueno.save();
-    return res.status(200).json(dueno);
+    const veterinaria = new Veterinaria(req.body);
+    await veterinaria.save();
+    return res.status(200).json(veterinaria);
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
   }
@@ -54,12 +54,12 @@ router.put("/:_id", async (req, res) => {
     if (!_id) {
       return res.status(400).json({ mensaje: "Falta id" });
     }
-    const duenoActualizado = await Dueno.findOneAndUpdate(
+    const veterinariaActualizado = await Veterinaria.findOneAndUpdate(
       { _id },
       { $set: datosNuevos },
       { new: true, runValidators: true } // entrega los datos nuevos y verifica validaciones
     );
-    return res.status(200).json(duenoActualizado);
+    return res.status(200).json(veterinariaActualizado);
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
   }
@@ -72,7 +72,7 @@ router.delete("/:_id", async (req, res) => {
     if (!_id) {
       return res.status(400).json({ mensaje: "Falta id" });
     }
-    const resultado = await Dueno.remove({ _id });
+    const resultado = await Veterinaria.remove({ _id });
     if (resultado.deletedCount === 1) {
       return res.status(204).send();
     }
