@@ -1,30 +1,14 @@
 const router = require("express").Router();
-const {
-  // listar,
-  //obtenerUno,
-  // crear,
-  //actualizar,
-  //eliminar,
-} = require("../genericos");
+const { filtrarEntidades } = require("../genericos");
 const entidad = "duenos";
-const Veterinaria = require("./schema");
+const Dueno = require("./schema");
 
 //const listarHandler = listar(entidad);
 router.get("/", async (req, res) => {
-  try
-  {
-    let { query } = req;
-    for (let llave of Object.keys(query)) {
-      //llave es donde se guardan todas las propiedades
-      if (
-        Dueno.schema.paths[llave].instance === "ObjectID" ||
-        Dueno.schema.paths[llave].instance === "Date"
-      ) {
-        continue;
-      }
-      query[llave] = { $regex: query[llave] };
-    }
-    const duenos = await Dueno.find();
+  try {
+    const filtro = filtrarEntidades(Dueno, req.query);
+
+    const duenos = await Dueno.find(filtro);
     return res.status(200).json(duenos);
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });
