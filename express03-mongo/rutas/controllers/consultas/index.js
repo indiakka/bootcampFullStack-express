@@ -12,7 +12,9 @@ const Consulta = require("./schema");
 //const listarHandler = listar(entidad);
 router.get("/", async (req, res) => {
   try {
-    const consultas = await Consulta.find();
+    const consultas = await Consulta.find()
+      .populate("mascota")
+      .populate("veterinaria");
     return res.status(200).json(consultas);
   } catch (error) {
     return res.status(500).json({ mensaje: error.message });

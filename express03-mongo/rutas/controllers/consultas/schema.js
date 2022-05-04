@@ -4,11 +4,11 @@ const { Schema } = mongoose;
 const consultaSchema = new Schema({
   mascota: {
     type: "ObjectId",
-    ref: "Mascota",
+    ref: "mascotas",
   },
   veterinaria: {
     type: "ObjectId",
-    ref: "Veterinaria",
+    ref: "veterinarias",
   },
   historia: {
     type: String,
