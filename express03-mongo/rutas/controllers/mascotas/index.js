@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { listar, filtrarEntidades, obtenerUno, crear } = require("../genericos");
+const { listar, obtenerUno, crear } = require("../genericos");
 const Mascota = require("./schema");
 
 const listarHandler = listar({Modelo: Mascota, populate: ['dueno']});
