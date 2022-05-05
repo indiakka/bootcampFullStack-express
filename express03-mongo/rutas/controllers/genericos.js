@@ -3,19 +3,34 @@ const lodash = require("lodash");
 
 const {
   crear,
-  listar,
   actualizar,
   eliminar,
   obtenerUno,
 } = require("../../data-handler");
 
-const listarEntidades = function closureListar(entidad) {
+const listar = function closureListar({Modelo= null, populate= []}) {
   return async function closureHandlerListar(req, res) {
-    if (!entidad) {
-      res.status(404).status({ mensaje: "no encontrado" });
+    try
+    {
+      if ( !Modelo )
+      {
+        throw new Error('No se envió modelo')
+      }
+      const filtro = filtrarEntidades(Modelo, req.query);
+     let promesaLista = Modelo.find(filtro) 
+      if ( Array.isArray( populate ) && populate.length > 0 )
+      {
+        for (const entidadAnidada of populate) {
+                 promesaLista = promesaLista.populate(entidadAnidada)
+
+        }
+     }
+     
+      const resultados = await promesaLista
+      return res.status(200).json(resultados);
+    } catch (error) {
+      return res.status(500).json({ mensaje: error.message });
     }
-    const mascotas = await listar({ directorioEntidad: entidad });
-    res.status(200).json(mascotas);
   };
 };
 
@@ -118,7 +133,7 @@ const filtrarEntidades = (model, query) => {
 };
 
 module.exports = {
-  listar: listarEntidades,
+  listar,
   obtenerUno: obtenerUnaEntidad,
   crear: crearEntidad,
   actualizar: editarEntidad,
