@@ -1,20 +1,12 @@
 const router = require("express").Router();
-const { filtrarEntidades } = require("../genericos");
-const entidad = "consultas";
+const { listar } = require("../genericos");
 const Consulta = require("./schema");
 
-//const listarHandler = listar(entidad);
-router.get("/", async (req, res) => {
-  try {
-    const filtro = filtrarEntidades(Consulta, req.query);
-    const consultas = await Consulta.find(filtro)
-      .populate("mascota")
-      .populate("veterinaria");
-    return res.status(200).json(consultas);
-  } catch (error) {
-    return res.status(500).json({ mensaje: error.message });
-  }
+const listarHandler = listar({
+  Modelo: Consulta,
+  populate: ["mascota", "veterinaria"],
 });
+router.get("/", listarHandler);
 
 //const obtenerUnoHandler = obtenerUno(entidad);
 router.get("/:_id", async (req, res) => {
