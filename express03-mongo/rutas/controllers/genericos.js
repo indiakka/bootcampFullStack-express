@@ -64,25 +64,35 @@ const crear = function closureCrearEntidad({ Modelo = null }) {
 };
 
 const actualizar = function closureEditarEntidad({ Modelo = null }) {
-  return async (req, res) => {
+  return async function closureHandlerEditarEntidad(req, res) {
     try {
       if (!Modelo) {
         throw new Error("No se envió modelo");
       }
       const { _id = null } = req.params;
       const { _id: id, ...datosNuevos } = req.body;
-      // separamos el id de los demás datos
       if (!_id) {
         return res.status(400).json({ mensaje: "Falta id" });
       }
-      const entidadActualizada = await Modelo.findOneAndUpdate(
-        { _id },
-        { $set: datosNuevos },
-        { new: true, runValidators: true } // entrega los datos nuevos y verifica validaciones
-      );
-      return res.status(200).json(entidadActualizada);
+      const entidad = await Modelo.findById(_id);
+      console.log({ entidad });
+      if (!entidad) {
+        return res.status(404).json({ mensaje: "No encontrado" });
+      }
+      entidad.set(datosNuevos);
+      await entidad.save();
+      return res.status(200).json(entidad);
     } catch (error) {
-      return res.status(500).json({ mensaje: error.message });
+      console.log({ error });
+      if (error.code === 11000) {
+        return res.status(400).json({
+          mensaje: `Ya existe otra entidad con el documento/ DNI  ${
+            req.body.documento || req.body.dni
+          }`,
+        });
+
+        return res.status(500).json({ mensaje: error.message });
+      }
     }
   };
 };
@@ -101,7 +111,7 @@ const eliminar = function closureEliminarEntidad({ Modelo = null }) {
       if (entidadBorrada.deletedCount === 1) {
         return res.status(204).send();
       } else {
-        res.status(404).status({ mensaje: "No encontrado" });
+        res.status(404).json({ mensaje: "No encontrado" });
       }
     } catch (error) {
       return res.status(500).json({ mensaje: error.message });
@@ -131,6 +141,75 @@ const filtrarEntidades = (model, query) => {
   return queryResultado;
 };
 
+const existeDocumento = function closureExisteDocumento({
+  Modelo = null,
+  campos = [],
+}) {
+  return async function closureHandlerExisteDocumento(req, _res, next) {
+    try {
+      if (!Modelo) {
+        throw new Error("No se envió modelo");
+      }
+      if (req.body && Array.isArray(campos) && campos.length) {
+        const queryExiste = campos.reduce((acumulador, propiedadActual) => {
+          if (typeof propiedadActual === "string") {
+            if (propiedadActual === "_id") {
+              acumulador = {
+                ...acumulador,
+                [propiedadActual]: req.params[propiedadActual],
+              };
+            } else {
+              acumulador = {
+                ...acumulador,
+                [propiedadActual]: req.body[propiedadActual],
+              };
+            }
+          }
+          if (
+            typeof propiedadActual === "object" &&
+            !Array.isArray(propiedadActual)
+          ) {
+            const { operador = null, nombre = null } = propiedadActual;
+            if (operador && nombre) {
+              if (nombre === "_id") {
+                acumulador = {
+                  ...acumulador,
+                  [nombre]: { [operador]: req.params[nombre] },
+                };
+              } else {
+                acumulador = {
+                  ...acumulador,
+                  [nombre]: { [operador]: req.body[nombre] },
+                };
+              }
+            }
+          }
+          return acumulador;
+        }, {});
+
+        console.log({ queryExiste });
+
+        const existenEntidadesConElMismoDocumento = await Modelo.exists(
+          queryExiste
+        );
+        if (existenEntidadesConElMismoDocumento) {
+          return res.status(400).json({
+            //const err = new createError[409](
+            mensaje: `entidad ${JSON.stringify(
+              req.body
+            )} tiene campos que no permiten duplicación!`,
+          });
+          //return next(err);
+        }
+      }
+      return next();
+    } catch (error) {
+      console.log({ error });
+      return res.status(500).json({ mensaje: error.message });
+    }
+  };
+};
+
 module.exports = {
   listar,
   obtenerUno,
@@ -138,4 +217,5 @@ module.exports = {
   actualizar,
   eliminar,
   filtrarEntidades,
+  existeDocumento,
 };

@@ -14,6 +14,7 @@ const veterinariaSchema = new Schema(
     documento: {
       type: Number,
       required: true,
+     
     },
   },
   { timestamps: true }

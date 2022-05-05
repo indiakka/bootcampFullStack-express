@@ -14,6 +14,7 @@ const duenoSchema = new Schema(
     dni: {
       type: String,
       required: true,
+      
     },
   },
   { timestamps: true }
