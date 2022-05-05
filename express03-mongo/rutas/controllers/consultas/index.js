@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { listar } = require("../genericos");
+const { listar, obtenerUno } = require("../genericos");
 const Consulta = require("./schema");
 
 const listarHandler = listar({
@@ -8,19 +8,8 @@ const listarHandler = listar({
 });
 router.get("/", listarHandler);
 
-//const obtenerUnoHandler = obtenerUno(entidad);
-router.get("/:_id", async (req, res) => {
-  try {
-    const { _id } = req.params;
-    const consulta = await Consulta.findById(_id);
-    if (consulta) {
-      return res.status(200).json(consulta);
-    }
-    return res.status(404).json({ mensaje: "Consulta no encontrada" });
-  } catch (error) {
-    return res.status(500).json({ mensaje: error.message });
-  }
-});
+const obtenerUnoHandler = obtenerUno({ Modelo: Consulta });
+router.get("/:_id", obtenerUnoHandler);
 
 //const crearHandler = crear(entidad)
 router.post("/", async (req, res) => {

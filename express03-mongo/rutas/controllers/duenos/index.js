@@ -1,23 +1,12 @@
 const router = require("express").Router();
-const { filtrarEntidades,listar } = require("../genericos");
+const { filtrarEntidades,listar, obtenerUno } = require("../genericos");
 const Dueno = require("./schema");
 
 const listarHandler = listar( {Modelo: Dueno});
 router.get("/", listarHandler );
 
-//const obtenerUnoHandler = obtenerUno(entidad);
-router.get("/:_id", async (req, res) => {
-  try {
-    const { _id } = req.params;
-    const dueno = await Dueno.findById(_id);
-    if (dueno) {
-      return res.status(200).json(dueno);
-    }
-    return res.status(404).json({ mensaje: "Duen@ no encontrada" });
-  } catch (error) {
-    return res.status(500).json({ mensaje: error.message });
-  }
-});
+const obtenerUnoHandler = obtenerUno({ Modelo: Dueno });
+router.get("/:_id", obtenerUnoHandler);
 
 //const crearHandler = crear(entidad)
 router.post("/", async (req, res) => {
