@@ -14,7 +14,6 @@ router.post("/", crearHandler);
 const editarHandler = actualizar({ Modelo: Mascota });
 router.put("/:_id", editarHandler)
 
-
 const eliminarHandler = eliminar({ Modelo: Mascota });
 router.delete("/:_id", eliminarHandler);
 
