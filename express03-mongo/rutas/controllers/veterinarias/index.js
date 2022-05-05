@@ -8,7 +8,7 @@ router.get("/", listarHandler);
 //const obtenerUnoHandler = obtenerUno(entidad);
 router.get("/:_id", async (req, res) => {
   try {
-    const { _id } = req.params;
+    const { _id  } = req.params;
     const veterinaria = await Veterinaria.findById(_id);
     if (veterinaria) {
       return res.status(200).json(veterinaria);

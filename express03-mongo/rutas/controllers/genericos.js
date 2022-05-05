@@ -5,28 +5,23 @@ const {
   crear,
   actualizar,
   eliminar,
-  obtenerUno,
 } = require("../../data-handler");
 
-const listar = function closureListar({Modelo= null, populate= []}) {
+const listar = function closureListar({ Modelo = null, populate = [] }) {
   return async function closureHandlerListar(req, res) {
-    try
-    {
-      if ( !Modelo )
-      {
-        throw new Error('No se envió modelo')
+    try {
+      if (!Modelo) {
+        throw new Error("No se envió modelo");
       }
       const filtro = filtrarEntidades(Modelo, req.query);
-     let promesaLista = Modelo.find(filtro) 
-      if ( Array.isArray( populate ) && populate.length > 0 )
-      {
+      let promesaLista = Modelo.find(filtro);
+      if (Array.isArray(populate) && populate.length > 0) {
         for (const entidadAnidada of populate) {
-                 promesaLista = promesaLista.populate(entidadAnidada)
-
+          promesaLista = promesaLista.populate(entidadAnidada);
         }
-     }
-     
-      const resultados = await promesaLista
+      }
+
+      const resultados = await promesaLista;
       return res.status(200).json(resultados);
     } catch (error) {
       return res.status(500).json({ mensaje: error.message });
@@ -34,24 +29,21 @@ const listar = function closureListar({Modelo= null, populate= []}) {
   };
 };
 
-const obtenerUnaEntidad = function closureObtenerUno(entidad) {
+const obtenerUno = function closureObtenerUno({ Modelo = null }) {
   return async function closureObtenerUno(req, res) {
-    const { _id = null } = req.params;
-
-    if (!_id) {
-      return res.status(400).json({ mensaje: "Falta el id" });
+    try {
+      if (!Modelo) {
+        throw new Error("No se envió modelo");
+      }
+      const { _id } = req.params;
+      const entidad = await Modelo.findById(_id);
+      if (entidad) {
+        return res.status(200).json(entidad);
+      }
+      return res.status(404).json({ mensaje: "Recurso no encontrado" });
+    } catch (error) {
+      return res.status(500).json({ mensaje: error.message });
     }
-    if (!entidad) {
-      res.status(404).status({ mensaje: "No encontrado" });
-    }
-    const _entidad = await obtenerUno({
-      directorioEntidad: entidad,
-      nombreArchivo: _id,
-    });
-    if (_entidad) {
-      return res.status(200).json(_entidad);
-    }
-    res.status(404).json({ mensaje: "No encontrado" });
   };
 };
 
@@ -134,7 +126,7 @@ const filtrarEntidades = (model, query) => {
 
 module.exports = {
   listar,
-  obtenerUno: obtenerUnaEntidad,
+  obtenerUno,
   crear: crearEntidad,
   actualizar: editarEntidad,
   eliminar: eliminarEntidad,
