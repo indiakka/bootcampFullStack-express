@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { listar, obtenerUno, crear, actualizar } = require("../genericos");
+const { listar, obtenerUno, crear, actualizar, eliminar } = require("../genericos");
 const Mascota = require("./schema");
 
 const listarHandler = listar({Modelo: Mascota, populate: ['dueno']});
@@ -15,21 +15,7 @@ const editarHandler = actualizar({ Modelo: Mascota });
 router.put("/:_id", editarHandler)
 
 
-//const eliminarHandler = eliminar(entidad);
-router.delete("/:_id", async (req, res) => {
-  try {
-    const { _id = null } = req.params;
-    if (!_id) {
-      return res.status(400).json({ mensaje: "Falta id" });
-    }
-    const mascotaBorrada = await Mascota.remove({ _id });
-    if (mascotaBorrada.deletedCount === 1) {
-      return res.status(204).send();
-    }
-    return res.status(500).json({ mensaje: "No se pudo eliminar" });
-  } catch (error) {
-    return res.status(500).json({ mensaje: error.message });
-  }
-});
+const eliminarHandler = eliminar({ Modelo: Mascota });
+router.delete("/:_id", eliminarHandler);
 
 module.exports = router;

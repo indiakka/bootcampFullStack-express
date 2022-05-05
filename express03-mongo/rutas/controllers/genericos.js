@@ -1,8 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const lodash = require("lodash");
 
-const { eliminar } = require("../../data-handler");
-
 const listar = function closureListar({ Modelo = null, populate = [] }) {
   return async function closureHandlerListar(req, res) {
     try {
@@ -89,17 +87,25 @@ const actualizar = function closureEditarEntidad({ Modelo = null }) {
   };
 };
 
-const eliminarEntidad = function closureEliminarEntidad(entidad) {
-  return async function closureEliminarEntidad(req, res) {
-    const { _id = null } = req.params;
-    if (!_id) {
-      return res.status(400).json({ mensaje: "Falta el id" });
+const eliminar = function closureEliminarEntidad({ Modelo = null }) {
+  return async (req, res) => {
+    try {
+      if (!Modelo) {
+        throw new Error("No se envió modelo");
+      }
+      const { _id = null } = req.params;
+      if (!_id) {
+        return res.status(400).json({ mensaje: "Falta id" });
+      }
+      const entidadBorrada = await Modelo.remove({ _id });
+      if (entidadBorrada.deletedCount === 1) {
+        return res.status(204).send();
+      } else {
+        res.status(404).status({ mensaje: "No encontrado" });
+      }
+    } catch (error) {
+      return res.status(500).json({ mensaje: error.message });
     }
-    if (!entidad) {
-      res.status(404).status({ mensaje: "No encontrado" });
-    }
-    await eliminar({ directorioEntidad: entidad, nombreArchivo: _id });
-    return res.status(204).send();
   };
 };
 
@@ -130,6 +136,6 @@ module.exports = {
   obtenerUno,
   crear,
   actualizar,
-  eliminar: eliminarEntidad,
+  eliminar,
   filtrarEntidades,
 };
