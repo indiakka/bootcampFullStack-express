@@ -1,8 +1,8 @@
-const { v4: uuidv4 } = require("uuid");
+const createError = require("http-errors");
 const lodash = require("lodash");
 
 const listar = function closureListar({ Modelo = null, populate = [] }) {
-  return async function closureHandlerListar(req, res) {
+  return async function closureHandlerListar(req, res, next) {
     try {
       if (!Modelo) {
         throw new Error("No se envió modelo");
@@ -14,17 +14,17 @@ const listar = function closureListar({ Modelo = null, populate = [] }) {
           promesaLista = promesaLista.populate(entidadAnidada);
         }
       }
-
       const resultados = await promesaLista;
       return res.status(200).json(resultados);
     } catch (error) {
-      return res.status(500).json({ mensaje: error.message });
+      const err = new createError[500]();
+      return next(err);
     }
   };
 };
 
 const obtenerUno = function closureObtenerUno({ Modelo = null }) {
-  return async function closureObtenerUno(req, res) {
+  return async function closureHandlerObtenerUno(req, res, next) {
     try {
       if (!Modelo) {
         throw new Error("No se envió modelo");
@@ -34,37 +34,38 @@ const obtenerUno = function closureObtenerUno({ Modelo = null }) {
       if (entidad) {
         return res.status(200).json(entidad);
       }
-      return res.status(404).json({ mensaje: "Recurso no encontrado" });
+      const err = new createError[404]();
+      return next(err);
     } catch (error) {
-      return res.status(500).json({ mensaje: error.message });
+      const err = new createError[500]();
+      return next(err);
     }
   };
 };
 
 const crear = function closureCrearEntidad({ Modelo = null }) {
-  return async function closureCrearEntidad(req, res) {
+  return async function closureHandlerCrearEntidad(req, res, next) {
     try {
       if (!Modelo) {
         throw new Error("No se envió modelo");
       }
-      if (!req.body) {
-        return res.status(400).json({ mensaje: "Falta el body" });
-      }
-      if (!Object.keys(req.body).length) {
-        return res.status(400).json({ mensaje: "Falta el body" });
+      if (!req.body || !Object.keys(req.body).length) {
+        const err = new createError[400]("Falta el body");
+        return next(err);
       }
       const { _id, ...restoDatosEntidad } = req.body;
       const entidad = new Modelo(restoDatosEntidad);
       await entidad.save();
       return res.status(200).json(entidad);
     } catch (error) {
-      return res.status(500).json({ mensaje: error.message });
+      const err = new createError[500]();
+      return next(err);
     }
   };
 };
 
 const actualizar = function closureEditarEntidad({ Modelo = null }) {
-  return async function closureHandlerEditarEntidad(req, res) {
+  return async function closureHandlerEditarEntidad(req, res, next) {
     try {
       if (!Modelo) {
         throw new Error("No se envió modelo");
@@ -72,49 +73,54 @@ const actualizar = function closureEditarEntidad({ Modelo = null }) {
       const { _id = null } = req.params;
       const { _id: id, ...datosNuevos } = req.body;
       if (!_id) {
-        return res.status(400).json({ mensaje: "Falta id" });
+        const err = new createError[400]("Falta el _id");
+        return next(err);
       }
       const entidad = await Modelo.findById(_id);
       console.log({ entidad });
       if (!entidad) {
-        return res.status(404).json({ mensaje: "No encontrado" });
+        const err = new createError[404]();
+        return next(err);
       }
       entidad.set(datosNuevos);
-      await entidad.save(); //modifica la entidad
+      await entidad.save();
       return res.status(200).json(entidad);
     } catch (error) {
-      console.log({ error });
       if (error.code === 11000) {
-        return res.status(400).json({
-          mensaje: `Ya existe otra entidad con el documento/ DNI  ${
-            req.body.documento || req.body.dni
-          }`,
-        });
-
-        return res.status(500).json({ mensaje: error.message });
+        const err = new createError[409](
+          `Entidad ${JSON.stringify(
+            req.body
+          )} tiene campos que no permiten duplicarse!`
+        );
+        return next(err);
       }
+      const err = new createError[500]();
+      return next(err);
     }
   };
 };
 
 const eliminar = function closureEliminarEntidad({ Modelo = null }) {
-  return async (req, res) => {
+  return async function closureHandlerEliminarEntidad(req, res, next) {
     try {
       if (!Modelo) {
         throw new Error("No se envió modelo");
       }
       const { _id = null } = req.params;
       if (!_id) {
-        return res.status(400).json({ mensaje: "Falta id" });
+        const err = new createError[400]("Falta el _id");
+        return next(err);
       }
       const entidadBorrada = await Modelo.remove({ _id });
       if (entidadBorrada.deletedCount === 1) {
         return res.status(204).send();
       } else {
-        res.status(404).json({ mensaje: "No encontrado" });
+        const err = new createError[404]();
+        return next(err);
       }
     } catch (error) {
-      return res.status(500).json({ mensaje: error.message });
+      const err = new createError[500]();
+      return next(err);
     }
   };
 };
@@ -124,7 +130,7 @@ const filtrarEntidades = (model, query) => {
   //lodash clona literalmente, por lo que al modificar, no hace cambios en el original
   for (let llave of Object.keys(queryResultado)) {
     //llave es donde se guardan todas las propiedades
-    const instancia = lodash.get(model, `schema.paths.${llave}.instance`, null);
+    const instancia = lodash.get( model, `schema.paths.${llave}.instance`, null );
     if (instancia === null) {
       queryResultado[llave] = undefined;
       continue;
@@ -193,19 +199,18 @@ const existeDocumento = function closureExisteDocumento({
           queryExiste
         );
         if (existenEntidadesConElMismoDocumento) {
-          return res.status(400).json({
-            //const err = new createError[409](
-            mensaje: `entidad ${JSON.stringify(
+          const err = new createError[409](
+            `entidad ${JSON.stringify(
               req.body
-            )} tiene campos que no permiten duplicación!`,
-          });
-          //return next(err);
+            )} tiene campos que no permiten duplicación!`
+          );
+          return next(err);
         }
       }
       return next();
     } catch (error) {
-      console.log({ error });
-      return res.status(500).json({ mensaje: error.message });
+      const err = new createError[500]();
+      return next(err);
     }
   };
 };

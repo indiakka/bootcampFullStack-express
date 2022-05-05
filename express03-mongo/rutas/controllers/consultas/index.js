@@ -1,4 +1,8 @@
 const router = require("express").Router();
+const Consulta = require("./schema");
+const Veterinaria = require("../veterinarias/schema");
+const Mascota = require("../mascotas/schema");
+
 const {
   listar,
   obtenerUno,
@@ -6,9 +10,6 @@ const {
   actualizar,
   eliminar,
 } = require("../genericos");
-const Consulta = require("./schema");
-const Veterinaria = require("../veterinarias/schema");
-const Mascota = require("../mascotas/schema");
 
 const listarHandler = listar({
   Modelo: Consulta,

@@ -1,4 +1,5 @@
-const router = require("express").Router();
+const createError = require('http-errors')
+const router = require( "express" ).Router();
 const {
   listar,
   obtenerUno,
@@ -16,17 +17,15 @@ const obtenerUnoHandler = obtenerUno({ Modelo: Mascota });
 router.get("/:_id", obtenerUnoHandler);
 
 const crearHandler = crear({ Modelo: Mascota });
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   const { dueno = null } = req.body;
   const existeDueno = await Dueno.exists({ _id: dueno });
-
   if (existeDueno) {
     return crearHandler(req, res);
   }
-  return res
-    .status(400)
-    .json({ mensaje: `Dueñ@ con _id ${dueno} no existe!` });
-});
+  const err = new createError[400]()
+  next(err)
+  });
 
 const editarHandler = actualizar({ Modelo: Mascota });
 router.put("/:_id", editarHandler);
