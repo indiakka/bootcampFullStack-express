@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const lodash = require("lodash");
 
-const { actualizar, eliminar } = require("../../data-handler");
+const { eliminar } = require("../../data-handler");
 
 const listar = function closureListar({ Modelo = null, populate = [] }) {
   return async function closureHandlerListar(req, res) {
@@ -43,7 +43,7 @@ const obtenerUno = function closureObtenerUno({ Modelo = null }) {
   };
 };
 
-const crear= function closureCrearEntidad({ Modelo = null }) {
+const crear = function closureCrearEntidad({ Modelo = null }) {
   return async function closureCrearEntidad(req, res) {
     try {
       if (!Modelo) {
@@ -65,25 +65,27 @@ const crear= function closureCrearEntidad({ Modelo = null }) {
   };
 };
 
-const editarEntidad = function closureEditarEntidad(entidad) {
-  return async function closureEditarEntidad(req, res) {
-    const { _id = null } = req.params;
-    if (!_id) {
-      return res.status(400).json({ mensaje: "Falta el id" });
+const actualizar = function closureEditarEntidad({ Modelo = null }) {
+  return async (req, res) => {
+    try {
+      if (!Modelo) {
+        throw new Error("No se envió modelo");
+      }
+      const { _id = null } = req.params;
+      const { _id: id, ...datosNuevos } = req.body;
+      // separamos el id de los demás datos
+      if (!_id) {
+        return res.status(400).json({ mensaje: "Falta id" });
+      }
+      const entidadActualizada = await Modelo.findOneAndUpdate(
+        { _id },
+        { $set: datosNuevos },
+        { new: true, runValidators: true } // entrega los datos nuevos y verifica validaciones
+      );
+      return res.status(200).json(entidadActualizada);
+    } catch (error) {
+      return res.status(500).json({ mensaje: error.message });
     }
-    if (!entidad) {
-      res.status(404).status({ mensaje: "No encontrado" });
-    }
-    if (req.body && Object.keys(req.body).length > 0) {
-      const datosActuales = { ...req.body, _id };
-      const mascotaActualizada = await actualizar({
-        directorioEntidad: entidad,
-        nombreArchivo: _id,
-        datosActuales,
-      });
-      return res.status(200).json(mascotaActualizada);
-    }
-    return res.status(400).json({ mensaje: "Falta el body" });
   };
 };
 
@@ -127,7 +129,7 @@ module.exports = {
   listar,
   obtenerUno,
   crear,
-  actualizar: editarEntidad,
+  actualizar,
   eliminar: eliminarEntidad,
   filtrarEntidades,
 };
