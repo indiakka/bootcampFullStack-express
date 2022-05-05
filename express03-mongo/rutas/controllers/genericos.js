@@ -80,7 +80,7 @@ const actualizar = function closureEditarEntidad({ Modelo = null }) {
         return res.status(404).json({ mensaje: "No encontrado" });
       }
       entidad.set(datosNuevos);
-      await entidad.save();
+      await entidad.save(); //modifica la entidad
       return res.status(200).json(entidad);
     } catch (error) {
       console.log({ error });

@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
   }
   if (!existeMascota) {
     const err = new createError[400](
-      `Mascota con _id ${JSON.stringify(veterinaria)} no existe!`
+      `Mascota con _id ${JSON.stringify(mascota)} no existe!`
     );
     return next(err);
   }
