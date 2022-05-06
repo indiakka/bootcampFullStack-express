@@ -18,7 +18,23 @@ const usuarioSchema = new Schema(
     tipo: {
       type: String,
       required: true,
-      enum: ["dueno", "veterinaria"],
+      enum: ["dueno", "veterinaria", "administrador"],
+    },
+    email: {
+      type: String,
+      required: true,
+      validate: {
+        validator: (mail) => {
+          if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+            return true;
+          }
+          return false;
+        },
+        message: "El formato del email, no es correcto",
+      },
+    },
+    password: {
+      type: String,
     },
   },
   { timestamps: true }

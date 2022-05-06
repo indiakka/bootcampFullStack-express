@@ -1,5 +1,6 @@
 const createError = require("http-errors");
-const lodash = require("lodash");
+const lodash = require( "lodash" );
+const{ manejadorDeErrores }= require('../util')
 
 const listar = function closureListar({ Modelo = null, populate = [] }) {
   return async function closureHandlerListar(req, res, next) {
@@ -58,8 +59,7 @@ const crear = function closureCrearEntidad({ Modelo = null }) {
       await entidad.save();
       return res.status(200).json(entidad);
     } catch (error) {
-      const err = new createError[500]();
-      return next(err);
+      return manejadorDeErrores({error, next})
     }
   };
 };
