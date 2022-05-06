@@ -2,20 +2,37 @@ const router = require("express").Router();
 const Usuario = require( "./schema" );
 const {manejadorDeErrores, removerPaswordDeRespuestas}= require('../../util')
 
-const {
-  listar,
-  obtenerUno,
-  crear,
-  actualizar,
-  eliminar,
-  existeDocumento,
-} = require("../genericos");
+const { eliminar, existeDocumento, filtrarEntidades } = require("../genericos");
 
-const listarHandler = listar({ Modelo: Usuario });
-router.get("/", listarHandler);
+//listar 
+router.get("/", async (req, res, next) => {
+  try {
+    const filtro = filtrarEntidades(Usuario, req.query);
+    let resultados = await Usuario.find(filtro);
+    resultados = resultados.map(removerPaswordDeRespuestas);
+    return res.status(200).json(resultados);
+  } catch (error) {
+    const err = new createError[500]();
+    return next(err);
+  }
+});
 
-const obtenerUnoHandler = obtenerUno({ Modelo: Usuario });
-router.get("/:_id", obtenerUnoHandler);
+//ficha obtener uno
+router.get("/:_id", async (req, res, next) => {
+  try {
+    const { _id } = req.params;
+    let usuario = await Usuario.findById(_id);
+    if (usuario) {
+      usuario = removerPaswordDeRespuestas(usuario);
+      return res.status(200).json(usuario);
+    }
+    const err = new createError[404]();
+    return next(err);
+  } catch (error) {
+    const err = new createError[500]();
+    return next(err);
+  }
+});
 
 const middlewareExisteDocumento = existeDocumento({
   Modelo: Usuario,
@@ -37,7 +54,6 @@ router.post("/", middlewareExisteDocumento, async (req, res, next) => {
   }
 });
 
-const editarHandler = actualizar({ Modelo: Usuario });
 const middlewareExisteEntidadConMismoDocumentoyDiferenteId = existeDocumento({
   Modelo: Usuario,
   campos: ["documento", { operador: "$ne", nombre: "_id" }],
