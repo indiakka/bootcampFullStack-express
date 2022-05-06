@@ -9,7 +9,7 @@ const consultaSchema = new Schema(
     },
     veterinaria: {
       type: "ObjectId",
-      ref: "veterinarias",
+      ref: "usuarios",
     },
     historia: {
       type: String,

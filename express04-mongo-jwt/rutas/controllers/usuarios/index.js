@@ -36,7 +36,7 @@ router.get("/:_id", async (req, res, next) => {
 
 const middlewareExisteDocumento = existeDocumento({
   Modelo: Usuario,
-  campos: ["documento"],
+  campos: ["dni"],
 });
 router.post("/", middlewareExisteDocumento, async (req, res, next) => {
   try {
@@ -56,7 +56,7 @@ router.post("/", middlewareExisteDocumento, async (req, res, next) => {
 
 const middlewareExisteEntidadConMismoDocumentoyDiferenteId = existeDocumento({
   Modelo: Usuario,
-  campos: ["documento", { operador: "$ne", nombre: "_id" }],
+  campos: ["dni", { operador: "$ne", nombre: "_id" }],
 });
 router.put(
   "/:_id",
@@ -83,7 +83,7 @@ router.put(
         const err = new createError[409](
           `entidad ${JSON.stringify(
             req.body
-          )} tiene campos que no permiten duplicación!`
+          )} tiene campos que no permiten duplicados!`
         );
         return next(err);
       }

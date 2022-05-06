@@ -8,7 +8,7 @@ const {
   eliminar,
 } = require("../genericos");
 const Mascota = require("./schema");
-const Dueno = require("../duenos/schema");
+const Usuario = require("../usuarios/schema");
 
 const listarHandler = listar({ Modelo: Mascota, populate: ["dueno"] });
 router.get("/", listarHandler);
@@ -18,9 +18,9 @@ router.get("/:_id", obtenerUnoHandler);
 
 const crearHandler = crear({ Modelo: Mascota });
 router.post("/", async (req, res, next) => {
-  const { dueno = null } = req.body;
-  const existeDueno = await Dueno.exists({ _id: dueno });
-  if (existeDueno) {
+  const { usuario = null } = req.body;
+  const existeUsuario = await Usuario.exists({ _id: usuario });
+  if (existeUsuario) {
     return crearHandler(req, res);
   }
   const err = new createError[400]()
