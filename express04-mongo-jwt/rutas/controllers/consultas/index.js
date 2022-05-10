@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const Consulta = require("./schema");
-const Veterinaria = require("../veterinarias/schema");
+const Usuario = require("../usuarios/schema");
 const Mascota = require("../mascotas/schema");
 
 const {
@@ -13,7 +13,10 @@ const {
 
 const listarHandler = listar({
   Modelo: Consulta,
-  populate: ["mascota", "veterinaria"],
+  populate: [
+    "mascota",
+    { path: "veterinaria", select: "nombre apellido dni tipo email" },
+  ],
 });
 router.get("/", listarHandler);
 
@@ -23,7 +26,7 @@ router.get("/:_id", obtenerUnoHandler);
 const crearHandler = crear({ Modelo: Consulta });
 router.post("/", async (req, res) => {
   const { mascota = null, veterinaria = null } = req.body;
-  const existeVeterinaria = await Veterinaria.exists({ _id: veterinaria });
+  const existeVeterinaria = await Usuario.exists({ _id: veterinaria, tipo: 'veterinaria' });
   const existeMascota = await Mascota.exists({ _id: mascota });
   if (existeVeterinaria && existeMascota) {
     return crearHandler(req, res);

@@ -59,7 +59,7 @@ const crear = function closureCrearEntidad({ Modelo = null }) {
       await entidad.save();
       return res.status(200).json(entidad);
     } catch (error) {
-      return manejadorDeErrores({error, next})
+      return manejadorDeErrores({ error, next });
     }
   };
 };
@@ -127,10 +127,8 @@ const eliminar = function closureEliminarEntidad({ Modelo = null }) {
 
 const filtrarEntidades = (model, query) => {
   let queryResultado = lodash.cloneDeep(query);
-  //lodash clona literalmente, por lo que al modificar, no hace cambios en el original
   for (let llave of Object.keys(queryResultado)) {
-    //llave es donde se guardan todas las propiedades
-    const instancia = lodash.get( model, `schema.paths.${llave}.instance`, null );
+    const instancia = lodash.get(model, `schema.paths.${llave}.instance`, null);
     if (instancia === null) {
       queryResultado[llave] = undefined;
       continue;
@@ -157,52 +155,26 @@ const existeDocumento = function closureExisteDocumento({
         throw new Error("No se envió modelo");
       }
       if (req.body && Array.isArray(campos) && campos.length) {
-        const queryExiste = campos.reduce((acumulador, propiedadActual) => {
-          if (typeof propiedadActual === "string") {
-            if (propiedadActual === "_id") {
-              acumulador = {
-                ...acumulador,
-                [propiedadActual]: req.params[propiedadActual],
-              };
-            } else {
-              acumulador = {
-                ...acumulador,
-                [propiedadActual]: req.body[propiedadActual],
-              };
-            }
+        let existenEntidadesConElMismoCampo = false;
+        let campo = null;
+        for (campo of campos) {
+          existenEntidadesConElMismoCampo = await Modelo.exists({
+            [campo]: req.body[campo],
+          });
+          if (existenEntidadesConElMismoCampo) {
+            break;
           }
-          if (
-            typeof propiedadActual === "object" &&
-            !Array.isArray(propiedadActual)
-          ) {
-            const { operador = null, nombre = null } = propiedadActual;
-            if (operador && nombre) {
-              if (nombre === "_id") {
-                acumulador = {
-                  ...acumulador,
-                  [nombre]: { [operador]: req.params[nombre] },
-                };
-              } else {
-                acumulador = {
-                  ...acumulador,
-                  [nombre]: { [operador]: req.body[nombre] },
-                };
-              }
-            }
-          }
-          return acumulador;
-        }, {});
+        }
 
-        console.log({ queryExiste });
+        console.log({
+          campo,
+          existenEntidadesConElMismoCampo,
+          value: req.body[campo],
+        });
 
-        const existenEntidadesConElMismoDocumento = await Modelo.exists(
-          queryExiste
-        );
-        if (existenEntidadesConElMismoDocumento) {
+        if (existenEntidadesConElMismoCampo) {
           const err = new createError[409](
-            `entidad ${JSON.stringify(
-              req.body
-            )} tiene campos que no permiten duplicación!`
+            `El campo ${campo} con valor ${req.body[campo]} ya existe!`
           );
           return next(err);
         }

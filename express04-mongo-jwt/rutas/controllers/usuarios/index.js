@@ -36,7 +36,7 @@ router.get("/:_id", async (req, res, next) => {
 
 const middlewareExisteDocumento = existeDocumento({
   Modelo: Usuario,
-  campos: ["dni"],
+  campos: ["dni", 'email'],
 });
 router.post("/", middlewareExisteDocumento, async (req, res, next) => {
   try {
