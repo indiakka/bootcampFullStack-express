@@ -1,5 +1,19 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const Mascota = require("../mascotas/schema");
+const mascotaSchema = Mascota.schema;
+const Veterinaria = require("../usuarios/schema");
+const veterinariaSchema = Veterinaria.schema;
+
+const notaSchema = new Schema(
+  {
+    mensaje: { type: String, required: true },
+    veterinaria: veterinariaSchema,
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const consultaSchema = new Schema(
   {

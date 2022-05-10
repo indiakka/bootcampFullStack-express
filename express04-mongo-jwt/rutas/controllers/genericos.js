@@ -1,6 +1,7 @@
 const createError = require("http-errors");
 const lodash = require( "lodash" );
-const{ manejadorDeErrores }= require('../util')
+const { manejadorDeErrores, jwtVerifyPromise } = require("../../util");
+const SECRET_KEY = process.env.SECRET_KEY;
 
 const listar = function closureListar({ Modelo = null, populate = [] }) {
   return async function closureHandlerListar(req, res, next) {
@@ -88,9 +89,9 @@ const actualizar = function closureEditarEntidad({ Modelo = null }) {
     } catch (error) {
       if (error.code === 11000) {
         const err = new createError[409](
-          `Entidad ${JSON.stringify(
+          `entidad ${JSON.stringify(
             req.body
-          )} tiene campos que no permiten duplicarse!`
+          )} tiene campos que no permiten duplicación!`
         );
         return next(err);
       }
@@ -174,7 +175,7 @@ const existeDocumento = function closureExisteDocumento({
 
         if (existenEntidadesConElMismoCampo) {
           const err = new createError[409](
-            `El campo ${campo} con valor ${req.body[campo]} ya existe!`
+            `el campo ${campo} con valor ${req.body[campo]} ya existe!`
           );
           return next(err);
         }
@@ -187,6 +188,44 @@ const existeDocumento = function closureExisteDocumento({
   };
 };
 
+const middlewareEstaAutorizado = function closureEstaAutorizado({
+  tiposUsuario = [], // TODO leer objetos para dar permisos específicos
+}) {
+  return function metodoEstaAutorizado(req, res, next) {
+    const { user = null } = req;
+    if (!user) {
+      const err = new createError[403]("no hay un usuario asociados");
+      return next(err);
+    }
+    if (!tiposUsuario || tiposUsuario.length === 0) {
+      const err = new createError[403]("no hay un role asociado");
+      return next(err);
+    }
+    if (Array.isArray(tiposUsuario) && tiposUsuario.includes(user.tipo)) {
+      return next();
+    }
+    const err = new createError[403]("no está autorizado");
+    return next(err);
+  };
+};
+
+const estaAutenticado = async (req, res, next) => {
+  try {
+    let auth = lodash.get(req, "headers.authorization", null);
+    if (!auth || !auth.length) {
+      const err = new createError.Unauthorized("Falta el token");
+      return next(err);
+    }
+    const [_bearer, token] = auth.split(" ");
+    console.log({ auth, _bearer, token });
+    const decoded = await jwtVerifyPromise({ token, secret: SECRET_KEY });
+    req.user = decoded;
+    next();
+  } catch (error) {
+    manejadorDeErrores({ error, next });
+  }
+};
+
 module.exports = {
   listar,
   obtenerUno,
@@ -195,4 +234,6 @@ module.exports = {
   eliminar,
   filtrarEntidades,
   existeDocumento,
+  middlewareEstaAutorizado,
+  estaAutenticado,
 };
