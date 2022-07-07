@@ -13,6 +13,7 @@ const {
   middlewareEstaAutorizado,
 } = require("../genericos");
 
+//listar
 router.get(
   "/",
   middlewareEstaAutorizado({
@@ -33,6 +34,7 @@ router.get(
   }
 );
 
+//obteneruno
 router.get(
   "/:_id",
   middlewareEstaAutorizado({
@@ -63,6 +65,8 @@ router.get(
   }
 );
 
+
+//crear
 router.post(
   "/",
   middlewareEstaAutorizado({
@@ -90,6 +94,7 @@ router.post(
   }
 );
 
+//editar
 router.put(
   "/:_id",
   middlewareEstaAutorizado({
@@ -135,7 +140,7 @@ router.put(
     }
   }
 );
-
+// eliminar
 const eliminarHandler = eliminar({ Modelo: Mascota });
 router.delete(
   "/:_id",
